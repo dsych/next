@@ -13,19 +13,28 @@ sudo: false
 cache: 
   directories:
     # cache the larger node_modules we use throughout the tree 
-    # - "node_modules"
-    # - "src/editor/node_modules"
-    # - "src/website/node_modules"
+    - node_modules
+    - src/editor/node_modules
+    - src/website/node_modules
     # cache the bios, linux binary images
-    - "dist/terminal/bin"
+    - dist/terminal/bin
 
 before_script:
   # Check if the current build is done against a PR.
   # If yes, test whether all files(except json) conform with style guide defined by Prettier.
   - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then ./node_modules/.bin/precise-commits --whitelist="./**/!(*.json)" --check-only --head=$TRAVIS_PULL_REQUEST_SHA --base=$(git merge-base HEAD $TRAVIS_BRANCH); fi'
+     # build new linux image if ./buildroot-v86/**/* changed and branch is master
+  - |
+    if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then #-a "$TRAVIS_BRANCH" == "master"
+      TRAVIS_COMMIT_RANGE="FETCH_HEAD...$TRAVIS_BRANCH"
+    fi
+    git diff --name-only $TRAVIS_COMMIT_RANGE | grep -qvE '^buildroot-v86/' || {
+      echo "Building new linux image."
+    }
 
 before_deploy:
-  # Do the entire build
+
+    # Do the entire build
   - npm run build
 
 deploy:
