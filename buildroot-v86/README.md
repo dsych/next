@@ -1,12 +1,12 @@
 # Buildroot V86
 
 We use a custom embedded Linux distribution meant to be run under emulation
-in the browser via [v86](https://github.com/copy/v86).  We build this via
+in the browser via [v86](https://github.com/copy/v86). We build this via
 [Buildroot](https://buildroot.org/) in order to produce:
 
-* a custom Linux 4.15 kernel, which strips out many unnecessary drivers, modules, etc. and adds Plan 9 filesystem sharing
-* a root filesystem and Unix commands via [BusyBox](https://busybox.net/)
-* an ISO-based bootloader (i.e., we create a "DVD" that is booted by v86)
+*   a custom Linux 4.15 kernel, which strips out many unnecessary drivers, modules, etc. and adds Plan 9 filesystem sharing
+*   a root filesystem and Unix commands via [BusyBox](https://busybox.net/)
+*   an ISO-based bootloader (i.e., we create a "DVD" that is booted by v86)
 
 Following the [Buildroot customization docs](https://buildroot.org/downloads/manual/manual.html#customize)
 we create a folder `buildroot-v86/` with all the necessary config files,
@@ -31,8 +31,8 @@ $ docker run \
     buildroot
 ```
 
-NOTE: we define two [volumes](https://docs.docker.com/engine/reference/builder/#volume) to 
-allow the container to access our v86 config, and also to write the ISO once complete.  In the
+NOTE: we define two [volumes](https://docs.docker.com/engine/reference/builder/#volume) to
+allow the container to access our v86 config, and also to write the ISO once complete. In the
 above I've used `$PWD`, but you can use any absolute path.
 
 When the build completes, a build ISO file will be places in `./v86-out/v86-linux.iso`
@@ -88,7 +88,7 @@ $ make linux-savedefconfig
 
 ## Configuration Notes
 
-These are the options I set when configuring buildroot for v86.  I'm only
+These are the options I set when configuring buildroot for v86. I'm only
 specifying the things I set.
 
 ```bash
@@ -100,45 +100,45 @@ Then follow these config steps in the buildroot config menu:
 
 ### Target options
 
-* Target Architecture: i386
-* Target Architecture Variant: pentium mobile (Pentium with MMX, SSE)
+*   Target Architecture: i386
+*   Target Architecture Variant: pentium mobile (Pentium with MMX, SSE)
 
 ### Build options
 
-* Enable compiler cache (not strictly necessary, but helps with rebuilds)
+*   Enable compiler cache (not strictly necessary, but helps with rebuilds)
 
 ### Toolchain
 
-* C library: uLibc-ng (I'd like to experiment with musl too)
+*   C library: uLibc-ng (I'd like to experiment with musl too)
 
 ### System configuration
 
-* remount root filesystem read-write during boot (I think this is unnecessary)
-* Root filesystem overlay directories: /build/overlay-fs (for etc/inittab)
+*   remount root filesystem read-write during boot (I think this is unnecessary)
+*   Root filesystem overlay directories: /build/overlay-fs (for etc/inittab)
 
 ### Kernel
 
-* Linux Kernel: true
-* Defconfig name: i386
-* Kernel binary format: bzImage (vmlinux seemed to break on boot)
+*   Linux Kernel: true
+*   Defconfig name: i386
+*   Kernel binary format: bzImage (vmlinux seemed to break on boot)
 
 ### Target packages
 
-Need to figure this out.  I tried adding imagemagik, git, uemacs, but they
+Need to figure this out. I tried adding imagemagik, git, uemacs, but they
 are all adding too much size to the image.
 
 ### Filesystem images
 
-* cpio the root filesystem (for use as an initial RAM filesystem)
-* initial RAM filesystem linked into the linux kernel (not sure I need this, trying without...)
-* iso image
-    * Use initrd
-* tar the root filesystem Compression method (no compression)
+*   cpio the root filesystem (for use as an initial RAM filesystem)
+*   initial RAM filesystem linked into the linux kernel (not sure I need this, trying without...)
+*   iso image
+    *   Use initrd
+*   tar the root filesystem Compression method (no compression)
 
 ### Bootloaders
 
-* syslinux
-    * install isolinux
+*   syslinux
+    *   install isolinux
 
 ## Linux configuration
 
@@ -163,36 +163,37 @@ CONFIG_VIRTIO_PCI=y
 
 # Processor type and features
 
-* Processor family (Pentium-Pro) also tried Pentium M before. 
+*   Processor family (Pentium-Pro) also tried Pentium M before.
 
 # Bus options (PCI, etc.)
 
-* PCI Debugging: true (I want to see what's happening with PCI errors, normally not needed)
+*   PCI Debugging: true (I want to see what's happening with PCI errors, normally not needed)
 
 # Networking support
 
-* Plan 9 Resource Sharing Support (9P2000) (built into kernel * vs. M)
-    * 9P Virtio Transport (* - make this is on, it won't exist if virtio is off)
-    * Debug information (* - optional)
+*   Plan 9 Resource Sharing Support (9P2000) (built into kernel \* vs. M)
+    *   9P Virtio Transport (\* - make this is on, it won't exist if virtio is off)
+    *   Debug information (\* - optional)
 
 # Device Drivers
 
-* Virtio drivers
-    * PCI driver for virtio devices (built into kernel * vs. M)
-        * Support for legacy virtio draft 0.9.X and older devices (New)
-    * Platform bus driver for memory mapped virtio devices (* vs. M) - not sure I need this...
-        * Memory mapped virtio devices parameter parsing - or this...
+*   Virtio drivers
+    *   PCI driver for virtio devices (built into kernel \* vs. M)
+        *   Support for legacy virtio draft 0.9.X and older devices (New)
+    *   Platform bus driver for memory mapped virtio devices (\* vs. M) - not sure I need this...
+        *   Memory mapped virtio devices parameter parsing - or this...
 
 # Filesystems
 
-* Caches
-    * General filesystem local caching manager (*)
-        * Filesystem caching on files (*)
+*   Caches
 
-* Network File Systems
-    * Plan 9 Resource Sharing Support (9P2000) (*)
-        * Enable 9P client caching support
-        * 9P Posic Access Control Lists
+    *   General filesystem local caching manager (\*)
+        *   Filesystem caching on files (\*)
+
+*   Network File Systems
+    *   Plan 9 Resource Sharing Support (9P2000) (\*)
+        *   Enable 9P client caching support
+        *   9P Posic Access Control Lists
 
 Now run `make`
 
